@@ -2,11 +2,23 @@
 #define HEADER_H_
 #include <stdio.h>
 
-//STRUCT ERRORS
+//STRUCTS
 typedef struct Errors{
     int nb_errors;
     char *draw;
 } t_errors;
+
+typedef struct GameStates{
+    int play_state;
+    int nb_errors;
+    int max_errors;
+    int difficulty;
+    char word_to_find[100];
+    char *displayed_word;
+    char letters_played[27];
+    char played_letter;
+    t_errors *errors;
+} t_gamestates;
 
 //FUNCTIONS
 void play_loop();

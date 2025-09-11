@@ -37,7 +37,13 @@ void display_hangman(int nb_errors, char *displayed_word, t_errors *errors)
         i++;
     }
     ft_putchar('\n');
-    ft_putstr(displayed_word);
+    i = 0;
+    while(displayed_word[i] != '\0')
+    {
+        ft_putchar(displayed_word[i]);
+        ft_putchar(' ');
+        i++;
+    }
     ft_putstr("\n\n");
     //printf("DEBUG: leaving display_hangman\n");
 }

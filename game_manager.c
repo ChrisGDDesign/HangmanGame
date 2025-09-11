@@ -119,7 +119,7 @@ void play_loop(void)
     int play_state;
     int nb_errors;
     int max_errors;
-    int diff;
+    int difficulty;
     int is_word;
     int is_letter;
     char word_to_find[100];
@@ -159,21 +159,21 @@ void play_loop(void)
             }
         }
 
-        diff = 0;
+        difficulty = 0;
         while (play_state == 1)
         {
             ft_putstr("Select a difficulty: Enter 1 for Easy, 2 for Normal or 3 for Hard\n");
-            scanf("%d", &diff);
-            if (diff < 1 || diff > 3)
+            scanf("%d", &difficulty);
+            if (difficulty < 1 || difficulty > 3)
             {
                 ft_putstr("Invalid difficulty\n");
                 continue;
             }
-            else if (diff == 1)
+            else if (difficulty == 1)
                 nb_errors = 0;
-            else if (diff == 2)
+            else if (difficulty == 2)
                 nb_errors = 3;
-            else if (diff == 3)
+            else if (difficulty == 3)
                 nb_errors = 6;
             play_state = 2;
         }
@@ -181,13 +181,41 @@ void play_loop(void)
         letters_played[0] = '\0';
         while (play_state == 2)
         {
-            ft_putstr("Enter a valid letter not already played\n");
+            ft_putstr("---Enter a valid letter not already played(Enter : to go to Command mode)---\n");
             scanf(" %c", &played_letter);
             is_letter = scan_letter(played_letter);
             if (is_letter == 0)
             {
-            ft_putstr("Invalid letter\n");
-            continue; 
+                if (played_letter == ':')
+                {
+                    ft_putstr("---Command mode: Q = Quit, R = Reset. Any other = Back to Play mode---\n");
+                    scanf(" %c", &quit_or_reset);
+                    if (quit_or_reset == 'Q')
+                    {
+                        ft_putstr("---Thanks for playing---\n");
+                        free_errors(errors);
+                        return ;
+                    }
+                    else if (quit_or_reset == 'R')
+                    {
+                        ft_putstr("---Reinitialization---\n");
+                        play_state = 0;
+                        nb_errors = 0;
+                        letters_played[0] = '\0';
+                        free(displayed_word);
+                        break;
+                    }
+                    else
+                    {
+                        ft_putstr("---Play Mode---\n");
+                        continue;
+                    }
+                }
+                else
+                {
+                    ft_putstr("Invalid letter\n");
+                    continue;
+                } 
             }
             else if (ft_strchr(letters_played, played_letter) != NULL)
             {
