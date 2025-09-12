@@ -114,183 +114,216 @@ char *ft_capitalize(char *str)
     return (str);
 }
 
+void select_word(t_gamestates *gamestates)
+{
+    int is_word;
+
+    while (gamestates-> play_state == 0)
+    {
+        ft_putstr("Select a single word for someone else to find\n");
+        scanf("%99s", gamestates-> word_to_find);
+        is_word = scan_word(gamestates-> word_to_find);
+        if (is_word == 1)
+        {
+            gamestates-> displayed_word = create_displayed_word(gamestates-> word_to_find);
+            gamestates-> play_state = 1;
+            ft_capitalize(gamestates-> word_to_find);
+        }
+        else
+        {
+            ft_putstr("Invalid word\n");
+            continue;
+        }
+    }
+}
+
+void select_difficulty(t_gamestates *gamestates)
+{
+    while (gamestates-> play_state == 1)
+    {
+        ft_putstr("Select a difficulty: Enter 1 for Easy, 2 for Normal or 3 for Hard\n");
+        scanf("%d", &gamestates-> difficulty);
+        if (gamestates-> difficulty < 1 || gamestates-> difficulty > 3)
+        {
+            ft_putstr("Invalid difficulty\n");
+            continue;
+        }
+        if (gamestates-> difficulty == 1)
+            gamestates-> nb_errors = 0;
+        else if (gamestates-> difficulty == 2)
+            gamestates-> nb_errors = 3;
+        else
+            gamestates-> nb_errors = 6;
+        gamestates-> play_state = 2;
+    }
+}
+
+int command_mode(t_gamestates *gamestates, int mode)
+{
+    char quit_or_reset;
+
+    while(1)
+    {
+        scanf(" %c", &quit_or_reset);
+        if (quit_or_reset == 'Q')
+        {
+            ft_putstr("---Thanks for playing---\n");
+            free_errors(gamestates-> errors);
+            free(gamestates);
+            return (1);//1 = Quit
+        }
+        else if (quit_or_reset == 'R')
+        {
+            ft_putstr("---Reinitialization---\n");
+            gamestates-> play_state = 0;
+            gamestates-> nb_errors = 0;
+            gamestates-> letters_played[0] = '\0';
+            free(gamestates-> displayed_word);
+            gamestates->displayed_word = NULL;
+            return (2);//2 = Reset
+        }
+        else if (mode)
+        {
+            ft_putstr("Invalid command ! Enter Q to quit or R to reset\n");
+            continue;
+        }
+        else
+            return (0);
+    } 
+    return (0);
+}
+
+void try_play_letter(t_gamestates *gamestates)
+{
+    char *res;
+
+    add_letter_played(gamestates-> letters_played, gamestates-> played_letter);
+    res = update_displayed_word(gamestates-> played_letter, gamestates-> word_to_find, gamestates-> displayed_word);
+    if (res == NULL)
+    {
+        gamestates-> nb_errors++;
+        ft_putstr("/!\\ Wrong letter /!\\\n");
+    }
+    else
+    {
+        ft_putstr("OK Right letter OK\n");
+        gamestates->displayed_word = res;
+    }
+}
+
+int end_game(t_gamestates *gamestates)
+{
+    int cmd;
+
+    while (gamestates-> play_state == 3)
+    {
+        if (ft_strcmp(gamestates-> displayed_word, gamestates-> word_to_find) == 0)
+        {
+            ft_putstr("You won, congratulations ! You can chose to quit (enter Q) or reset the game (enter R)!\n");
+            cmd = command_mode(gamestates, 1);
+            if (cmd == 1)
+                return (1);
+            else if (cmd == 2)
+                return (2);
+            else
+                return (0);
+        }
+
+        if (gamestates-> nb_errors >= gamestates-> max_errors)
+        {
+            ft_putstr("You lost, too bad ! But you can chose a new word to play again !\n");
+            cmd = command_mode(gamestates, 1);
+            if (cmd == 1)
+                return (1);
+            else if (cmd == 2)
+                return (2);
+            else
+                return (0);
+        }
+    }
+    return (0);
+}
+
+int play_letter(t_gamestates *gamestates)
+{
+    int is_letter;
+    int cmd;
+
+    while (gamestates-> play_state == 2)
+    {
+        ft_putstr("---Enter a valid letter not already played(Enter : to go to Command mode)---\n");
+        scanf(" %c", &gamestates-> played_letter);
+        is_letter = scan_letter(gamestates-> played_letter);
+        if (is_letter == 0)
+        {
+            if (gamestates-> played_letter == ':')
+            {
+                ft_putstr("---Command mode: Q = Quit, R = Reset. Any other = Back to Play mode---\n");
+                cmd = command_mode(gamestates, 0);
+                if (cmd == 1)
+                    return (1);
+                else if (cmd == 2)
+                    return (2);
+                else
+                {
+                    ft_putstr("---Play Mode---\n");
+                    return (0);
+                }
+            }
+            else
+            {
+                ft_putstr("Invalid letter\n");
+                continue;
+            } 
+        }
+        else if (ft_strchr(gamestates-> letters_played, gamestates-> played_letter) != NULL)
+        {
+            ft_putstr("Letter played already\n");
+            continue; 
+        }
+        else
+            try_play_letter(gamestates);
+        display_hangman(gamestates-> nb_errors, gamestates-> displayed_word, gamestates-> errors);
+        if ((ft_strcmp(gamestates-> displayed_word, gamestates-> word_to_find) == 0) || (gamestates-> nb_errors >= gamestates-> max_errors))
+            gamestates-> play_state = 3;
+    }
+    return (0);
+}
+
 void play_loop(void)
 {
-    int play_state;
-    int nb_errors;
-    int max_errors;
-    int difficulty;
-    int is_word;
-    int is_letter;
-    char word_to_find[100];
-    char *displayed_word;
-    char *res;
-    char letters_played[27];
-    char played_letter;
-    char quit_or_reset;
-    t_errors *errors;
+    int res;
+    t_gamestates *gamestates;
 
-    play_state = 0;
-    errors = init_error_struct();
-    if (!errors)
+    gamestates = malloc(sizeof(t_gamestates));
+    if (!gamestates)
+        return;
+    gamestates-> play_state = 0;
+    gamestates-> errors = init_error_struct();
+    if (!gamestates-> errors)
     {
         ft_putstr("Error: could not initialize hangman drawings\n");
         return;
     }
-    max_errors = 13;
-    is_word = 0;
+    gamestates-> max_errors = 13;
     while (1)
     {
-        while (play_state == 0)
-        {
-            ft_putstr("Select a single word for someone else to find\n");
-            scanf("%99s", word_to_find);
-            is_word = scan_word(word_to_find);
-            if (is_word == 1)
-            {
-                displayed_word = create_displayed_word(word_to_find);
-                play_state = 1;
-                ft_capitalize(word_to_find);
-            }
-            else
-            {
-                ft_putstr("Invalid word\n");
-                continue;
-            }
-        }
+        select_word(gamestates);
+        gamestates-> difficulty = 0;
+        select_difficulty(gamestates);
+        gamestates-> letters_played[0] = '\0';
+        res = play_letter(gamestates);
+        if (res == 1)
+            break;
+        else if (res == 2)
+            continue;
+        else
+            res = end_game(gamestates);
 
-        difficulty = 0;
-        while (play_state == 1)
-        {
-            ft_putstr("Select a difficulty: Enter 1 for Easy, 2 for Normal or 3 for Hard\n");
-            scanf("%d", &difficulty);
-            if (difficulty < 1 || difficulty > 3)
-            {
-                ft_putstr("Invalid difficulty\n");
-                continue;
-            }
-            else if (difficulty == 1)
-                nb_errors = 0;
-            else if (difficulty == 2)
-                nb_errors = 3;
-            else if (difficulty == 3)
-                nb_errors = 6;
-            play_state = 2;
-        }
-
-        letters_played[0] = '\0';
-        while (play_state == 2)
-        {
-            ft_putstr("---Enter a valid letter not already played(Enter : to go to Command mode)---\n");
-            scanf(" %c", &played_letter);
-            is_letter = scan_letter(played_letter);
-            if (is_letter == 0)
-            {
-                if (played_letter == ':')
-                {
-                    ft_putstr("---Command mode: Q = Quit, R = Reset. Any other = Back to Play mode---\n");
-                    scanf(" %c", &quit_or_reset);
-                    if (quit_or_reset == 'Q')
-                    {
-                        ft_putstr("---Thanks for playing---\n");
-                        free_errors(errors);
-                        return ;
-                    }
-                    else if (quit_or_reset == 'R')
-                    {
-                        ft_putstr("---Reinitialization---\n");
-                        play_state = 0;
-                        nb_errors = 0;
-                        letters_played[0] = '\0';
-                        free(displayed_word);
-                        break;
-                    }
-                    else
-                    {
-                        ft_putstr("---Play Mode---\n");
-                        continue;
-                    }
-                }
-                else
-                {
-                    ft_putstr("Invalid letter\n");
-                    continue;
-                } 
-            }
-            else if (ft_strchr(letters_played, played_letter) != NULL)
-            {
-            ft_putstr("Letter played already\n");
-            continue; 
-            }
-            else
-            {
-                add_letter_played(letters_played, played_letter);
-                res = update_displayed_word(played_letter, word_to_find, displayed_word);
-                if (res == NULL)
-                {
-                    nb_errors++;
-                    ft_putstr("/!\\ Wrong letter /!\\\n");
-                }
-                else
-                {
-                    ft_putstr("OK Right letter OK\n");
-                    displayed_word = res;
-                }
-            }
-            display_hangman(nb_errors, displayed_word, errors);
-            if (ft_strcmp(displayed_word, word_to_find) == 0)
-            {
-                ft_putstr("You won, congratulations ! You can chose to quit (enter Q) or reset the game (enter R)!\n");
-                while (1)
-                {
-                    scanf(" %c", &quit_or_reset);
-                    if (quit_or_reset != 'Q' && quit_or_reset != 'R')
-                    {
-                        ft_putstr("Invalid command ! Enter Q to quit or R to reset\n");
-                        continue;
-                    }
-                    if (quit_or_reset == 'Q' )
-                    {
-                        free_errors(errors);
-                        return;
-                    }
-                    if (quit_or_reset == 'R' )
-                    {
-                        play_state = 0;
-                        nb_errors = 0;
-                        letters_played[0] = '\0';
-                        free(displayed_word);
-                        break;
-                    }    
-                }
-            }
-
-            if (nb_errors >= max_errors)
-            {
-                ft_putstr("You lost, too bad ! But you can chose a new word to play again !\n");
-                while (1)
-                {
-                    scanf(" %c", &quit_or_reset);
-                    if (quit_or_reset != 'Q' && quit_or_reset != 'R')
-                    {
-                        ft_putstr("Invalid command ! Enter Q to quit or R to reset\n");
-                        continue;
-                    }
-                    if (quit_or_reset == 'Q' )
-                    {
-                        free_errors(errors);
-                        return;
-                    }
-                    if (quit_or_reset == 'R' )
-                    {
-                        play_state = 0;
-                        nb_errors = 0;
-                        letters_played[0] = '\0';
-                        free(displayed_word);
-                        break;
-                    } 
-                }
-            }
-        }
-    }  
+        if (res == 1)
+            break;
+        else if (res == 2)
+            continue;
+    } 
+    return ;
 }
