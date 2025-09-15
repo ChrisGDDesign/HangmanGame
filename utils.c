@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include "header.h"
+
 int ft_atoi(char *str)
 {
     int res;
@@ -12,4 +15,17 @@ int ft_atoi(char *str)
         i++;
     }
     return (res);
+}
+
+void free_errors(t_errors *errors)
+{
+    int i;
+
+    i = 0;
+    while (errors[i].nb_errors != -1)
+    {
+        free(errors[i].draw);
+        i++;
+    }
+    free(errors);
 }

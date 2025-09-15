@@ -27,6 +27,10 @@ int count_digit_keys(char *str);
 void free_cur_errors(int i, t_errors *errors);
 void display_hangman(int nb_errors, char *displayed_word, t_errors *errors);
 t_errors *init_error_struct(void);
+int command_mode(t_gamestates *gamestates, int mode);
+char *create_displayed_word(char *str);
+void try_play_letter(t_gamestates *gamestates);
+
 
 //UTILS
 int ft_atoi(char *str);
@@ -36,5 +40,11 @@ int ft_strcmp(char *str1, char *str2);
 void ft_putstr(char *str);
 char *ft_strstr(char *mainstr, char *substr);
 char *ft_strchr(char *str, char c);
+char *ft_capitalize(char *str);
+int scan_letter(char c);
+int scan_word(char *str);
+int seek_letter(char played_letter, char *word_to_find);
+void free_errors(t_errors *errors);
+
 
 #endif
