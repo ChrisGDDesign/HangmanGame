@@ -8,6 +8,7 @@ int command_mode(t_gamestates *gamestates, int mode)
     while(1)
     {
         scanf(" %c", &quit_or_reset);
+        flush_stdin();
         if (quit_or_reset == 'Q')
         {
             ft_putstr("---Thanks for playing---\n");

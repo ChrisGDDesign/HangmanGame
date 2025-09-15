@@ -2,6 +2,6 @@
 
 int main(void)
 {
-    play_loop();
+    game_manager();
     return (0);
 }
