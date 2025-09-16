@@ -1,4 +1,4 @@
-#include <stdio.h>
+//#include <stdio.h>
 #include <stdlib.h>
 #include "header.h"
 
@@ -60,11 +60,12 @@ int play_letter(t_gamestates *gamestates)
     while (gamestates-> play_state == 2)
     {
         ft_putstr("---Enter a letter (or : for command mode)---\n");
-        scanf(" %c", &gamestates ->played_letter);
+        scanf("%99s", gamestates ->played_letter);
         flush_stdin();
 
         cmd = handle_played_letter(gamestates);
-        if (cmd) return cmd;
+        if (cmd) 
+            return (cmd);
 
         display_hangman(gamestates->nb_errors, gamestates->displayed_word, gamestates->errors);
 

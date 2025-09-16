@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "header.h"
 
 char *update_displayed_word(char played_letter, char *word_to_find, char *displayed_word)
@@ -56,16 +57,42 @@ void try_play_letter(t_gamestates *gamestates)
 {
     char *res;
 
-    add_letter_played(gamestates-> letters_played, gamestates-> played_letter);
-    res = update_displayed_word(gamestates-> played_letter, gamestates-> word_to_find, gamestates-> displayed_word);
+    add_letter_played(gamestates-> letters_played, gamestates-> played_letter[0]);
+    res = update_displayed_word(gamestates-> played_letter[0], gamestates-> word_to_find, gamestates-> displayed_word);
     if (res == NULL)
     {
         gamestates-> nb_errors++;
-        ft_putstr("/!\\ Wrong letter /!\\\n");
+        ft_putstr("\n/!\\ Wrong letter /!\\\n");
     }
     else
     {
-        ft_putstr("OK Right letter OK\n");
+        ft_putstr("\nOK Right letter OK\n");
         gamestates->displayed_word = res;
     }
+}
+
+int handle_played_letter(t_gamestates *g)
+{
+    if (ft_strlen(g->played_letter) != 1)
+    {
+        ft_putstr("Invalid letter\n");
+        return (0);
+    }  
+    if (!scan_letter(g->played_letter[0]))
+    {
+        if (g->played_letter[0] == ':')
+        {
+            ft_putstr("---Q to quit, R to restart---\n");
+            return (command_mode(g, 0));
+        }
+        ft_putstr("Invalid letter\n");
+        return (0);
+    }
+    if (ft_strchr(g->letters_played, g->played_letter[0]))
+    {
+        ft_putstr("Letter played already\n");
+        return (0);
+    }
+    try_play_letter(g);
+    return (0);
 }

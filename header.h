@@ -16,7 +16,7 @@ typedef struct GameStates{
     char word_to_find[100];
     char *displayed_word;
     char letters_played[27];
-    char played_letter;
+    char played_letter[100];
     t_errors *errors;
 } t_gamestates;
 
