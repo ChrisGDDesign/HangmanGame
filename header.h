@@ -22,8 +22,10 @@ typedef struct GameStates{
 
 //FUNCTIONS
 void game_manager(void);
-char *file_to_buffer(void);
+char *errors_file_to_buffer(void);
+char *words_file_to_buffer(void);
 int count_digit_keys(char *str);
+int count_words(char *str);
 void free_cur_errors(int i, t_errors *errors);
 void display_hangman(int nb_errors, char *displayed_word, t_errors *errors);
 t_errors *init_error_struct(void);
@@ -32,6 +34,8 @@ char *create_displayed_word(char *str);
 void try_play_letter(t_gamestates *gamestates);
 int end_game(t_gamestates *gamestates);
 int handle_played_letter(t_gamestates *g);
+long get_fsize(FILE *file);
+char *fill_buffer(long size, FILE *file);
 
 //UTILS
 int ft_atoi(char *str);

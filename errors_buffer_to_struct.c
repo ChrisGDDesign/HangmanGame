@@ -92,7 +92,7 @@ t_errors *init_error_struct(void)
     int struct_size;
     t_errors *errors;
 
-    buffer = file_to_buffer();
+    buffer = errors_file_to_buffer();
     if (!buffer)
     {
         ft_putstr("DEBUG: file_to_buffer returned NULL\n");

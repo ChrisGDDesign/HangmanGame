@@ -2,14 +2,14 @@
 #include <stdlib.h>
 #include "header.h"
 
-char *errors_file_to_buffer(void)
+char *words_file_to_buffer(void)
 {
     FILE *file;
     char *buffer;
     long size;
 
     //Open file
-    file = fopen("errors.txt", "r");
+    file = fopen("words.txt", "r");
     if (file == NULL)
     {//= !file//
         //ft_putstr("DEBUG: open file returned NULL\n");
@@ -34,27 +34,4 @@ char *errors_file_to_buffer(void)
     }
     fclose(file);
     return (buffer);
-}
-
-int count_digit_keys(char *str)
-{
-    int count;
-    int i;
-    int is_digit_line;
-
-    is_digit_line = 0;
-    i = 0;
-    count = 0;
-    while (str[i] != '\0')
-    {
-        if (str[i] >= '0' && str[i] <= '9')
-            is_digit_line = 1;
-        if (!(str[i] >= '0' && str[i] <= '9') && is_digit_line == 1)
-            {
-                is_digit_line = 0;
-                count++;
-            }    
-        i++;
-    }
-    return (count);
 }
