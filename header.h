@@ -18,6 +18,9 @@ typedef struct GameStates{
     char letters_played[27];
     char played_letter[100];
     t_errors *errors;
+    char *words_buffer;
+    char **words_array;
+    int nb_words;
 } t_gamestates;
 
 //FUNCTIONS
@@ -29,6 +32,7 @@ int count_words(char *str);
 void free_cur_errors(int i, t_errors *errors);
 void display_hangman(int nb_errors, char *displayed_word, t_errors *errors);
 t_errors *init_error_struct(void);
+int init_words_array(t_gamestates *gamestates);
 int command_mode(t_gamestates *gamestates, int mode);
 char *create_displayed_word(char *str);
 void try_play_letter(t_gamestates *gamestates);
@@ -36,6 +40,7 @@ int end_game(t_gamestates *gamestates);
 int handle_played_letter(t_gamestates *g);
 long get_fsize(FILE *file);
 char *fill_buffer(long size, FILE *file);
+char *pick_random_word(t_gamestates *gamestates);
 
 //UTILS
 int ft_atoi(char *str);

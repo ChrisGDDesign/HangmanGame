@@ -28,82 +28,44 @@ int count_words(char *str)
     return (count);
 }
 
-int is_sep(char c, char *charset)
-{
-    int i;
-
-    i = 0;
-    while (charset[i] != '\0')
-    {
-        if (c == charset[i])
-            return (1);
-        i++;
-    }
-    return (0);
-}
-
-char **parser_words(char *str, char **tab)
-{
-    char *charset;
-    int start;
-    int end;
-    int i;
-    int j;
-
-    charset = "\n";
-    start = 0;
-    i = 0;
-    while (str[start] != '\0')
-    {
-        while (is_sep(str[start], charset))
-            start++;
-        if (str[start] == '\0')
-            break;
-        end = start;
-        while (!is_sep(str[end], charset) && str[end] != '\0')
-            end++;
-        tab[i] = malloc(sizeof(char) * (end - start + 1));
-        if (!tab[i])
-        {
-            free_cur_words(i, tab);
-            return (NULL);
-        }
-        j = 0;
-        while (start < end)
-            tab[i][j++] = str[start++];
-        tab[i][j] = '\0';
-        i++;
-        start = end;
-    }
-    tab[i] = NULL;
-    return (tab);
-}
-char **init_words_array(void)
+int init_words_array(t_gamestates *gamestates)
 {
     char *buffer;
-    int array_size;
-    char **words_array;
+    int count;
+    char *ptr;
 
-    buffer = words_file_to_buffer();
+    count = 0;//count words and is used as index in array
+    buffer = words_file_to_buffer();//save file in buffer
     if (!buffer)
+        return (0);
+    gamestates->words_array = malloc(sizeof(char *) * (count_words(buffer) + 1));
+    if (!gamestates->words_array)
     {
-        ft_putstr("DEBUG: file_to_buffer returned NULL\n");
-        return (NULL);
+        free(buffer);
+        return (0);
     }
-    array_size = count_words(buffer);
-    //printf("DEBUG: struct_size = %d\n", struct_size);
-    words_array = malloc(sizeof(char *) * (array_size + 1));
-    if (!words_array)
+    ptr = buffer;
+    while (*ptr)
     {
-        //ft_putstr("DEBUG: malloc failed\n");
-        return (NULL);
+        // sauter les séparateurs (\n transformés en \0)
+        while (*ptr == '\n')
+        {
+            *ptr = '\0';
+            ptr++;
+        }
+
+        if (*ptr == '\0')
+            break; // fin du buffer
+
+        // début d'un mot
+        gamestates->words_array[count++] = ptr;
+
+        // avancer jusqu'à la fin du mot
+        while (*ptr && *ptr != '\n')
+            ptr++;
     }
-    words_array = parser_words(buffer, words_array);
-    free(buffer);
-    if (!words_array)
-    {
-        //ft_putstr("DEBUG: parser_error failed\n");
-        return (NULL);
-    }
-    return (words_array);
+    gamestates-> words_array[count] = NULL;//terminate NULL
+    gamestates-> nb_words = count;//Save nb_words
+    gamestates-> words_buffer = buffer;//save buffer
+    return (1);
 }
