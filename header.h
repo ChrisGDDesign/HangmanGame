@@ -41,6 +41,9 @@ int handle_played_letter(t_gamestates *g);
 long get_fsize(FILE *file);
 char *fill_buffer(long size, FILE *file);
 char *pick_random_word(t_gamestates *gamestates);
+int ask_pick_word(t_gamestates *gamestates);
+void user_pick_word(t_gamestates *gamestates);
+void select_random_word(t_gamestates *gamestates);
 
 //UTILS
 int ft_atoi(char *str);

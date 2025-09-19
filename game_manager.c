@@ -4,54 +4,26 @@
 
 void select_word(t_gamestates *gamestates)
 {
-    int is_word;
     int pick_word;//1 = User choose word to find, 2 = word to find is random
-    char *rand_word;
 
-    pick_word = 0;
     while (gamestates-> play_state == 0)
     {
-        ft_putstr("---Enter 1 to select a single word for someone else to find, or 2 to generate it randomly---\n");
-        if(scanf("%d", &pick_word) != 1)//if scanf doesn't return 1(int), invalid entry
-        {
-            ft_putstr("Invalid entry\n");
-            flush_stdin();
-            continue;
-        }
-        flush_stdin();
-
+        pick_word = ask_pick_word(gamestates);
+        
         if (pick_word == 1)
         {
-            scanf("%99s", gamestates-> word_to_find);
-            flush_stdin();
-
-            is_word = scan_word(gamestates-> word_to_find);
-            if (is_word == 1)
-            {
-                gamestates-> displayed_word = create_displayed_word(gamestates-> word_to_find);
-                gamestates-> play_state = 1;
-                ft_capitalize(gamestates-> word_to_find);
-            }
-            else
-            {
-                ft_putstr("Invalid word\n");
-                continue;
-            }
+            user_pick_word(gamestates);
+            continue;
         }
         else if (pick_word == 2)
         {
-            rand_word = pick_random_word(gamestates);
-            ft_strncpy(gamestates-> word_to_find, rand_word, 99);
-            gamestates-> displayed_word = create_displayed_word(gamestates-> word_to_find);
-            gamestates-> play_state = 1;
-            ft_capitalize(gamestates-> word_to_find);
+            select_random_word(gamestates);
         }
         else
         {
             ft_putstr("Invalid entry\n");
             continue;
-        }
-        
+        } 
     }
 }
 
@@ -149,8 +121,6 @@ void game_manager(void)
         ft_putstr("Error: could not initialize words array\n");
         return;
     }
-    for (int i = 0; i < gamestates->nb_words; i++)
-        printf("[%d] %s\n", i, gamestates->words_array[i]);
     gamestates-> max_errors = 13;
     play_loop(gamestates);
     return ;
